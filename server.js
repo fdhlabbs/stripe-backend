@@ -7,25 +7,34 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/create-payment-intent', async (req, res) => {
-  const { amount } = req.body;
-
   try {
+    const { amount, email, description } = req.body;
+
+    // Log inputs for debugging
+    console.log("Received payment request:", { amount, email, description });
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency: 'usd',
-      receipt_email: req.body.email,
-      description: req.body.description || 'Car Service',
-      automatic_payment_methods: {enabled: true,},
+      currency: 'myr',
+      receipt_email: email,
+      description: description || 'Car Service',
+      metadata: {
+        userEmail: email,
+        desc: description
+      },
+      automatic_payment_methods: { enabled: true }
     });
 
     res.send({
-      clientSecret: paymentIntent.client_secret,
+      clientSecret: paymentIntent.client_secret
     });
   } catch (error) {
+    console.error("Stripe error:", error);
     res.status(400).send({ error: error.message });
   }
 });
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`Stripe backend running on port ${PORT}`));
+
 
