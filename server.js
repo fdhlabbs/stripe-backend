@@ -11,9 +11,11 @@ app.post('/create-payment-intent', async (req, res) => {
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount, // amount in sen (smallest unit of MYR)
-      currency: 'myr', // ✅ Correct for Malaysia
-      automatic_payment_methods: { enabled: true },
+      amount,
+      currency: 'usd',
+      receipt_email: req.body.email,
+      description: req.body.description || 'Car Service',
+      automatic_payment_methods: {enabled: true,},
     });
 
     res.send({
@@ -26,3 +28,4 @@ app.post('/create-payment-intent', async (req, res) => {
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`Stripe backend running on port ${PORT}`));
+
